@@ -10,6 +10,9 @@ import 'vant/lib/index.css'
 // 加载全局样式
 import '../src/styles/index.less'
 
+// 加载动态设置 REM 基准值
+import 'amfe-flexible'
+
 // 加载图标样式
 import '../src/styles/icon.less'
 Vue.config.productionTip = false
