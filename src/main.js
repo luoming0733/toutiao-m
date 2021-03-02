@@ -13,6 +13,9 @@ import '../src/styles/index.less'
 // 加载动态设置 REM 基准值
 import 'amfe-flexible'
 
+// 加载使用过滤器
+import './utils/dayjs'
+
 // 加载图标样式
 import '../src/styles/icon.less'
 Vue.config.productionTip = false
@@ -22,6 +25,6 @@ Vue.use(Vant)
 
 new Vue({
   router,
-  store,
+  store: store,
   render: h => h(App)
 }).$mount('#app')
