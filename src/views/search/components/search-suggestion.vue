@@ -1,11 +1,12 @@
 <template>
   <div class="search-suggestion">
-    <van-cell
-      :title="text"
-      icon="search"
-      v-for="(text, index) in suggestions"
-      :key="index"
-    />
+    <van-cell icon="search" v-for="(text, index) in suggestions" :key="index">
+      <div
+        slot="title"
+        @click="$emit('search', text)"
+        v-html="highlight(text)"
+      ></div>
+    </van-cell>
   </div>
 </template>
 
@@ -38,7 +39,7 @@ export default {
       // 做防抖处理
       handler: debounce(function(value) {
         this.loadSearchSuggestions(value)
-      }, 500),
+      }, 800),
       immediate: true
     }
   },
@@ -46,11 +47,17 @@ export default {
     async loadSearchSuggestions() {
       try {
         const { data } = await getSearchSuggestions(this.searchText)
-        console.log(data)
+        // console.log(data)
         this.suggestions = data.data.options
       } catch (err) {
         this.$toast('获取数据失败, 请稍后重试')
       }
+    },
+    // 添加高亮处理方法
+    highlight(text) {
+      const highlightStr = `<span style="color: #3296fa">${this.searchText}</span>`
+      const reg = new RegExp(this.searchText, 'gi')
+      return text.replace(reg, highlightStr)
     }
   }
 }

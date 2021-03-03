@@ -11,3 +11,11 @@ export const getArticles = params => {
     params
   })
 }
+
+// 根据文章 ID 获取文章详情
+export const getArticleById = articleId => {
+  return request({
+    method: 'GET',
+    url: `/app/v1_0/articles/${articleId}`
+  })
+}

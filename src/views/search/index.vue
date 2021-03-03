@@ -12,12 +12,16 @@
       />
 
       <!-- 搜索结果 -->
-      <search-result v-if="isResultShow"></search-result>
+      <search-result
+        v-if="isResultShow"
+        :search-text="searchText"
+      ></search-result>
 
       <!-- 联想建议 -->
       <search-suggestion
         v-else-if="searchText"
         :search-text="searchText"
+        @search="onSearch"
       ></search-suggestion>
 
       <!-- 搜索历史 -->
@@ -44,8 +48,8 @@ export default {
   methods: {
     onSearch(searchText) {
       this.isResultShow = true
-      // console.log(searchText)
-      this.$toast(searchText)
+      this.searchText = searchText
+      // this.$toast(searchText)
     },
     onCancel() {
       // this.isResultShow = false
