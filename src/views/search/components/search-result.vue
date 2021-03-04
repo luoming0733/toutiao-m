@@ -42,7 +42,6 @@ export default {
           per_page: this.per_page, // 每页大小
           q: this.searchText // 查询关键词
         })
-        console.log(data.data)
         const { results } = data.data
         this.list.push(...results)
         this.loading = false
@@ -53,7 +52,6 @@ export default {
         }
       } catch (err) {
         this.$toast('数据加载失败请重试')
-        // console.log('数据加载失败请重试', err)
       }
     }
   }

@@ -22,3 +22,12 @@ export const getSearchReslut = params => {
     params
   })
 }
+
+// 删除搜索结果
+// export const deleteHistory = params => {
+//   return request({
+//     method: 'DELETE',
+//     url: '/v1_0/search/histories',
+//     params
+//   })
+// }

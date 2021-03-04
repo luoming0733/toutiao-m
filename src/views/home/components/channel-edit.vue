@@ -83,12 +83,11 @@ export default {
         const { data } = await getAllChannels()
         this.allChannels = data.data.channels
       } catch (err) {
-        console.log(err)
         this.$toast('获取所有频道数据失败')
       }
     },
     onAddChannel(channel) {
-      console.log(channel)
+      // console.log(channel)
       this.myChannels.push(channel)
     },
     onMyChannelClick(channel, index) {

@@ -1,18 +1,20 @@
 <template>
   <div class="article-container">
     <!-- 导航栏 -->
-    <van-nav-bar class="page-nav-bar" left-arrow title="黑马头条"></van-nav-bar>
+    <van-nav-bar class="page-nav-bar" title="黑马头条">
+      <van-icon slot="left" name="arrow-left" @click="$router.back()" />
+    </van-nav-bar>
 
     <div class="main-wrap">
       <!-- 加载中 -->
-      <div class="loading-wrap">
+      <div v-if="loading" class="loading-wrap">
         <van-loading color="#3296fa" vertical>加载中</van-loading>
       </div>
 
       <!-- 加载完成-文章详情 -->
-      <div class="article-detail">
+      <div v-else-if="article.title" class="article-detail">
         <!-- 文章标题 -->
-        <h1 class="article-title">这是文章标题</h1>
+        <h1 class="article-title">{{ article.title }}</h1>
 
         <!-- 用户信息 -->
         <van-cell class="user-info" center :border="false">
@@ -21,67 +23,96 @@
             slot="icon"
             round
             fit="cover"
-            src="https://img.yzcdn.cn/vant/cat.jpeg"
+            :src="article.aut_photo"
           />
-          <div slot="title" class="user-name">黑马头条号</div>
-          <div slot="label" class="publish-date">14小时前</div>
-          <van-button
+          <div slot="title" class="user-name">{{ article.aut_name }}</div>
+          <div slot="label" class="publish-date">
+            {{ article.pubdate | relativeTime }}
+          </div>
+          <!-- 关注和取消组件 -->
+          <follow-user
+            :is-followed="article.is_followed"
             class="follow-btn"
-            type="info"
-            color="#3296fa"
-            round
-            size="small"
-            icon="plus"
-            >关注</van-button
-          >
-          <!-- <van-button
-            class="follow-btn"
-            round
-            size="small"
-          >已关注</van-button>-->
+            :user-id="article.aut_id"
+            @update-is_followed="article.is_followed = $event"
+          ></follow-user>
         </van-cell>
 
         <!-- 文章内容 -->
-        <div class="article-content">这是文章内容</div>
+        <div
+          ref="article-content"
+          class="article-content markdown-body"
+          v-html="article.content"
+        ></div>
         <van-divider>正文结束</van-divider>
+        <!-- 底部区域 -->
+        <div class="article-bottom">
+          <!-- 评论组件 -->
+          <van-button class="comment-btn" type="default" round size="small"
+            >写评论</van-button
+          >
+          <van-badge :content="123" class="badge-info">
+            <div class="child"><van-icon name="comment-o" color="#777" /></div>
+          </van-badge>
+          <!-- 收藏 -->
+          <collect-article
+            class="btn-item"
+            v-model="article.is_collected"
+            :article-id="article.art_id"
+          ></collect-article>
+          <!-- 点赞 -->
+          <like-article
+            v-model="article.attitude"
+            :article-id="article.art_id"
+          ></like-article>
+          <!-- 转发 -->
+          <van-icon name="share" color="#777777"></van-icon>
+        </div>
       </div>
 
       <!-- 加载失败：404 -->
-      <div class="error-wrap">
+      <div v-else-if="errStatus === 404" class="error-wrap">
         <van-icon name="failure" />
         <p class="text">该资源不存在或已删除！</p>
       </div>
 
       <!-- 加载失败：其它未知错误（例如网络原因或服务端异常） -->
-      <div class="error-wrap">
+      <div v-else class="error-wrap">
         <van-icon name="failure" />
         <p class="text">内容加载失败！</p>
-        <van-button class="retry-btn">点击重试</van-button>
+        <van-button class="retry-btn" @click="loadingAgain"
+          >点击重试</van-button
+        >
       </div>
-    </div>
-
-    <!-- 底部区域 -->
-    <div class="article-bottom">
-      <van-button class="comment-btn" type="default" round size="small"
-        >写评论</van-button
-      >
-      <van-icon name="comment-o" info="123" color="#777" />
-      <van-icon color="#777" name="star-o" />
-      <van-icon color="#777" name="good-job-o" />
-      <van-icon name="share" color="#777777"></van-icon>
     </div>
   </div>
 </template>
 
 <script>
 import { getArticleById } from '@/api/artic.js'
+import { ImagePreview } from 'vant'
+import FollowUser from '@/components/follow-user'
+import CollectArticle from '@/components/collect-article'
+import LikeArticle from '@/components/like-article'
+
 export default {
   name: 'ArticleIndex',
-  components: {},
+  components: {
+    FollowUser,
+    CollectArticle,
+    LikeArticle
+  },
   props: {
     articleId: {
-      type: [Number, String],
+      type: [Number, String, Object],
       required: true
+    }
+  },
+  data() {
+    return {
+      article: {}, // 文章详情
+      loading: true,
+      errStatus: 0 // 失败的状态码
     }
   },
   created() {
@@ -91,17 +122,51 @@ export default {
     async loadArticle() {
       try {
         const { data } = await getArticleById(this.articleId)
-        console.log(data)
+        // console.log(data)
+        this.article = data.data
+        setTimeout(() => {
+          this.previewImage()
+        })
       } catch (err) {
-        this.$toast('获取文章失败')
-        console.log('获取文章失败', err)
+        if (err.response && err.response.status === 404) {
+          this.errStatus = 404
+        }
+        console.log('数据加载失败', err)
       }
+      this.loading = false
+    },
+    loadingAgain() {
+      this.loadArticle()
+    },
+    // 预览图片
+    previewImage() {
+      // 得到所有的 img 节点
+      const articleContent = this.$refs['article-content']
+      const imgs = articleContent.querySelectorAll('img')
+      const images = []
+
+      imgs.forEach((item, index) => {
+        images.push(item.src)
+
+        item.onclick = () => {
+          ImagePreview({
+            images: images,
+            startPosition: index
+          })
+        }
+      })
     }
   }
 }
 </script>
 
 <style scoped lang="less">
+@import './github-markdown.css';
+.page-nav-bar {
+  .van-icon {
+    font-size: 30px;
+  }
+}
 .article-container {
   .main-wrap {
     position: fixed;
@@ -208,9 +273,12 @@ export default {
     }
     .van-icon {
       font-size: 40px;
-      .van-info {
+    }
+    /deep/ .badge-info {
+      font-size: 16px;
+      .van-badge {
         font-size: 16px;
-        background-color: #e22829;
+        top: -2px;
       }
     }
   }

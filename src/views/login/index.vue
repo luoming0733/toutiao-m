@@ -107,10 +107,10 @@ export default {
       try {
         const { data } = await login(user)
         this.$toast.success('登录成功')
-        console.log('登录成功', data.data)
+        // console.log('登录成功', data.data)
         this.$store.commit('setUser', data.data)
         this.$router.back()
-        console.log(data)
+        // console.log(data)
       } catch (err) {
         if (err.response.status === 400) {
           this.$toast.fail('手机号或验证码错误')

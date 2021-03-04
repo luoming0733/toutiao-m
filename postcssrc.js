@@ -1,11 +1,16 @@
 module.exports = {
   plugins: {
-    autoprefixer: {
-      browsers: ['Android >= 4.0', 'iOS >= 8']
-    },
     'postcss-pxtorem': {
-      rootValue: 37.5,
-      propList: ['*']
+      rootValue({ file }) {
+        return file.indexOf('vant') !== -1 ? 37.5 : 75
+      },
+
+      // rootValue: 375,
+
+      // 配置要转换的 CSS 属性
+      // * 表示所有
+      propList: ['*'],
+      exclude: 'github-markdown'
     }
   }
 }
