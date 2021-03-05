@@ -45,14 +45,20 @@
           v-html="article.content"
         ></div>
         <van-divider>正文结束</van-divider>
+        <!-- 文章评论列表 -->
+        <comment-list
+          class="comment-list"
+          :source="article.art_id"
+          @onload-success="totalCommentCount = $event.total_count"
+        />
         <!-- 底部区域 -->
         <div class="article-bottom">
           <!-- 评论组件 -->
           <van-button class="comment-btn" type="default" round size="small"
             >写评论</van-button
           >
-          <van-badge :content="123" class="badge-info">
-            <div class="child"><van-icon name="comment-o" color="#777" /></div>
+          <van-badge :content="totalCommentCount">
+            <van-icon name="comment-o" color="#777" />
           </van-badge>
           <!-- 收藏 -->
           <collect-article
@@ -94,13 +100,14 @@ import { ImagePreview } from 'vant'
 import FollowUser from '@/components/follow-user'
 import CollectArticle from '@/components/collect-article'
 import LikeArticle from '@/components/like-article'
-
+import CommentList from './components/comment-list'
 export default {
   name: 'ArticleIndex',
   components: {
     FollowUser,
     CollectArticle,
-    LikeArticle
+    LikeArticle,
+    CommentList
   },
   props: {
     articleId: {
@@ -112,7 +119,8 @@ export default {
     return {
       article: {}, // 文章详情
       loading: true,
-      errStatus: 0 // 失败的状态码
+      errStatus: 0, // 失败的状态码
+      totalCommentCount: 0 // 评论数量
     }
   },
   created() {
@@ -270,6 +278,10 @@ export default {
       font-size: 30px;
       line-height: 46px;
       color: #a7a7a7;
+    }
+    /deep/.van-badge {
+      top: 16px;
+      font-size: 8px;
     }
     .van-icon {
       font-size: 40px;

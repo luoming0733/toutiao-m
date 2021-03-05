@@ -64,7 +64,7 @@ export default {
   data() {
     return {
       user: {
-        mobile: '18612345678',
+        mobile: '18175182026',
         code: '246810'
       },
       // 登录表单的验证规则
