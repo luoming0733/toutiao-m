@@ -56,6 +56,9 @@
 import { getUserChannels } from '@/api/user'
 import articleList from './components/article-list.vue'
 import ChannelEdit from './components/channel-edit.vue'
+import { mapState } from 'vuex'
+import { getItem } from '@/utils/storage'
+
 export default {
   components: { articleList, ChannelEdit },
   name: 'HomeIndex',
@@ -69,21 +72,33 @@ export default {
   created() {
     this.loadChannels()
   },
+  computed: { ...mapState(['user']) },
   methods: {
-    // 频道数据的获取事件
+    // 获取频道列表
     async loadChannels() {
-      try {
+      let channels = []
+      if (this.user) {
+        // 已登录，请求获取用户频道列表
         const { data } = await getUserChannels()
-        this.channels = data.data.channels
-      } catch (err) {
-        this.$toast('获取频道数据失败!')
+        channels = data.data.channels
+      } else {
+        // 未登录，判断是否有本地的频道列表数据
+        const localChannels = getItem('TOUTIAO_CHANNELS')
+        // 如果存在本地的频道列表数据
+        if (localChannels) {
+          channels = localChannels
+        } else {
+          // 没有，请求获取默认频道列表
+          const { data } = await getUserChannels()
+          channels = data.data.channels
+        }
       }
+
+      this.channels = channels
     },
-    onUpdateActive(i, isChannelEditShow = true) {
-      // 更新激活的频道项
-      this.active = i
-      // 关闭编辑频道弹层
-      this.isChannelEditShow = false
+    onUpdateActive(index, isChannelEditShow = true) {
+      this.active = index
+      this.isChannelEditShow = isChannelEditShow
     }
   }
 }

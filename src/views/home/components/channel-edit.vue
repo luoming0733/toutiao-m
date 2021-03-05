@@ -52,7 +52,13 @@
 </template>
 
 <script>
-import { getAllChannels } from '@/api/channel.js'
+import {
+  getAllChannels,
+  addUserChannel,
+  deleteUserChannel
+} from '@/api/channel.js'
+import { mapState } from 'vuex'
+import { setItem } from '@/utils/storage'
 export default {
   name: 'ChannelEdit',
   props: {
@@ -86,25 +92,62 @@ export default {
         this.$toast('获取所有频道数据失败')
       }
     },
-    onAddChannel(channel) {
-      // console.log(channel)
+    // 添加频道的事件函数
+    async onAddChannel(channel) {
       this.myChannels.push(channel)
+      // 数据持久化
+      // 已登录接入线上接口
+      if (this.user) {
+        try {
+          await addUserChannel({
+            id: channel.id, // 频道ID
+            seq: this.myChannels.length // 序号
+          })
+        } catch (err) {
+          this.$toast('操作失败，请重试')
+        }
+      } else {
+        // 未登录,本地存储
+        setItem('TOUTIAO_CHANNELS', this.myChannels)
+      }
     },
+    // 切换频道
     onMyChannelClick(channel, index) {
       if (this.isEdit) {
-        if (index <= this.active) {
-          // 激活频道的索引 -1
-          this.$emit('update-active', this.active - 1, true)
+        // 如果是固定频道，则不删除
+        if (this.fiexdChannels.includes(channel.id)) {
+          return
         }
-        // 编辑状态,执行删除频道
+        // 删除频道项
         this.myChannels.splice(index, 1)
+        // 如果要删除的激活频道之前的频道，则更新激活的频道项
+        // 参数1：要删除的元素的开始索引
+        // 参数2：要删除的个数，如果不指定，则从参数 1 开始一直删除
+        if (index <= this.activeIndex) {
+          // 让激活频道索引 - 1
+          this.$emit('update-active', this.activeIndex - 1, true)
+        }
       } else {
-        // 非编辑状态,指向切换频道
+        // 非编辑状态，指向切换频道
         this.$emit('update-active', index, false)
+      }
+    },
+    // 删除频道
+    async deleteChannel(channel) {
+      if (this.user) {
+        try {
+          await deleteUserChannel(channel.id)
+        } catch (err) {
+          this.$toast('操作失败，请重试')
+          console.log('操作失败' + err)
+        }
+      } else {
+        setItem('TOUTIAO_CHANNELS', this.myChannels)
       }
     }
   },
   computed: {
+    ...mapState(['user']),
     recommendChannele() {
       // 数组的 filter 方法：遍历数组，把符合条件的元素存储到新数组中
       return this.allChannels.filter(channel => {
