@@ -25,7 +25,10 @@
         <span class="comment-pubdate">{{
           comment.pubdate | relativeTime
         }}</span>
-        <van-button class="reply-btn" round
+        <van-button
+          class="reply-btn"
+          round
+          @click="$emit('replay-click', comment)"
           >回复 {{ comment.reply_count }}</van-button
         >
       </div>
@@ -41,6 +44,7 @@ export default {
   props: {
     comment: {
       type: [Object],
+
       required: true
     }
   },

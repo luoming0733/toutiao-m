@@ -10,12 +10,10 @@
       <div v-if="loading" class="loading-wrap">
         <van-loading color="#3296fa" vertical>加载中</van-loading>
       </div>
-
       <!-- 加载完成-文章详情 -->
       <div v-else-if="article.title" class="article-detail">
         <!-- 文章标题 -->
         <h1 class="article-title">{{ article.title }}</h1>
-
         <!-- 用户信息 -->
         <van-cell class="user-info" center :border="false">
           <van-image
@@ -48,13 +46,20 @@
         <!-- 文章评论列表 -->
         <comment-list
           class="comment-list"
+          :list="commentList"
           :source="article.art_id"
+          @replay-click="onRplayClick"
           @onload-success="totalCommentCount = $event.total_count"
         />
         <!-- 底部区域 -->
         <div class="article-bottom">
           <!-- 评论组件 -->
-          <van-button class="comment-btn" type="default" round size="small"
+          <van-button
+            class="comment-btn"
+            type="default"
+            round
+            size="small"
+            @click="isPostShow = true"
             >写评论</van-button
           >
           <van-badge :content="totalCommentCount">
@@ -74,6 +79,13 @@
           <!-- 转发 -->
           <van-icon name="share" color="#777777"></van-icon>
         </div>
+        <!-- 发布评论的弹出层 -->
+        <van-popup v-model="isPostShow" position="bottom">
+          <comment-post
+            :target="article.art_id"
+            @post-success="onPostSuccess"
+          ></comment-post>
+        </van-popup>
       </div>
 
       <!-- 加载失败：404 -->
@@ -91,6 +103,13 @@
         >
       </div>
     </div>
+    <!-- 评论回复 -->
+    <van-popup v-model="isReplayShow" position="bottom" style="height:90%">
+      <comment-replay
+        :comment="currentComment"
+        @close="isReplayShow = false"
+      ></comment-replay>
+    </van-popup>
   </div>
 </template>
 
@@ -101,13 +120,18 @@ import FollowUser from '@/components/follow-user'
 import CollectArticle from '@/components/collect-article'
 import LikeArticle from '@/components/like-article'
 import CommentList from './components/comment-list'
+import CommentPost from './components/comment-post'
+import CommentReplay from './components/comment-replay'
+
 export default {
   name: 'ArticleIndex',
   components: {
     FollowUser,
     CollectArticle,
     LikeArticle,
-    CommentList
+    CommentList,
+    CommentPost,
+    CommentReplay
   },
   props: {
     articleId: {
@@ -120,7 +144,11 @@ export default {
       article: {}, // 文章详情
       loading: true,
       errStatus: 0, // 失败的状态码
-      totalCommentCount: 0 // 评论数量
+      totalCommentCount: 0, // 评论数量
+      isPostShow: false,
+      commentList: [], // 评论列表
+      isReplayShow: false, // 回复评论
+      currentComment: {} // 点击回复的评论项
     }
   },
   created() {
@@ -163,6 +191,17 @@ export default {
           })
         }
       })
+    },
+    onPostSuccess(data) {
+      // 关闭弹出层
+      this.isPostShow = false
+      this.totalCommentCount++
+      this.commentList.unshift(data.new_obj)
+    },
+    onRplayClick(comment) {
+      this.isReplayShow = true // 显示评论回复弹出层
+      this.currentComment = comment
+      console.log(comment)
     }
   }
 }
