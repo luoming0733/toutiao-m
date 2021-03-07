@@ -32,8 +32,8 @@ export default {
     searchText: {
       // handler 函数语法是固定的!!!
       // handler(searchText) {
-      //   console.log(searchText)
-      //   this.loadSearchSuggestions(searchText)
+      // console.log(searchText)
+      // this.loadSearchSuggestions(searchText)
       // },
 
       // 做防抖处理

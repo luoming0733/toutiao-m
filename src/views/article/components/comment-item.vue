@@ -67,7 +67,6 @@ export default {
           this.comment.like_count++
         }
       } catch (err) {
-        console.log(err)
         this.$toast('操作失败,请重试!')
       }
       // 更新视图

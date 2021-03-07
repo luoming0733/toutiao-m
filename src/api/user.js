@@ -28,7 +28,7 @@ export const sendSms = mobile => {
 export const getUserInfo = () => {
   return request({
     method: 'GET',
-    url: '/v1_0/user/profile'
+    url: '/v1_0/user'
     // 发送数据请求头
     // headers: {
     //   Authorization: `Bearer ${store.state.user.token}`
@@ -62,5 +62,32 @@ export const deleteFollow = target => {
   return request({
     method: 'DELETE',
     url: `/v1_0/user/followings/${target}`
+  })
+}
+
+// 获取登录用户的信息
+export const getProfile = () => {
+  return request({
+    method: 'GET',
+    url: '/v1_0/user/profile'
+  })
+}
+
+// 更新用户资料
+// 获取登录用户的信息
+export const updateUserProfile = data => {
+  return request({
+    method: 'PATCH',
+    url: '/v1_0/user/profile',
+    data
+  })
+}
+
+// 更新用户照片资料
+export const updateUserPhoto = data => {
+  return request({
+    method: 'PATCH',
+    url: '/v1_0/user/photo',
+    data
   })
 }

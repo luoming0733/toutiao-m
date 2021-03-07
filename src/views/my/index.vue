@@ -15,24 +15,24 @@
           <span class="name">{{ userInfo.name }}</span>
         </div>
         <div class="right">
-          <van-button round size="mini">编辑资料</van-button>
+          <van-button round size="mini" to="/user/profile">编辑资料</van-button>
         </div>
       </div>
       <div class="data-stats">
         <div class="data-item">
-          <span class="count">8</span>
+          <span class="count">{{ userInfo.art_count }}</span>
           <span class="text">头条</span>
         </div>
         <div class="data-item">
-          <span class="count">66</span>
+          <span class="count">{{ userInfo.follow_count }}</span>
           <span class="text">关注</span>
         </div>
         <div class="data-item">
-          <span class="count">88</span>
+          <span class="count">{{ userInfo.fans_count }}</span>
           <span class="text">粉丝</span>
         </div>
         <div class="data-item">
-          <span class="count">88</span>
+          <span class="count">{{ userInfo.like_count }}</span>
           <span class="text">获赞</span>
         </div>
       </div>
@@ -97,7 +97,6 @@ export default {
       try {
         const { data } = await getUserInfo()
         this.userInfo = data.data
-        // console.log(data)
       } catch (err) {
         this.$toast('获取数据失败,请稍后重试')
       }

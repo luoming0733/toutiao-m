@@ -167,7 +167,7 @@ export default {
         if (err.response && err.response.status === 404) {
           this.errStatus = 404
         }
-        console.log('数据加载失败', err)
+        // console.log('数据加载失败', err)
       }
       this.loading = false
     },
@@ -201,7 +201,6 @@ export default {
     onRplayClick(comment) {
       this.isReplayShow = true // 显示评论回复弹出层
       this.currentComment = comment
-      console.log(comment)
     }
   }
 }
