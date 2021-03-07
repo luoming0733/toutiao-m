@@ -48,7 +48,6 @@ export default {
         this.$emit('post-success', data.data)
         this.$toast.success('发布评论成功!')
       } catch (err) {
-        console.log('失败' + err)
         this.$toast.fail('评论失败,请重试!')
       }
     }
