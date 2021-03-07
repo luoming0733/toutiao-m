@@ -43,7 +43,7 @@ export default {
       const currentDate = dayjs(this.currentDate).format('YYYY-MM-DD')
       try {
         await updateUserProfile({
-          birthday: this.currentDate
+          birthday: currentDate
         })
         this.$emit('input', currentDate)
         this.$emit('close')
